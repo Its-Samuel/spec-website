@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Question for You</title>
+    <style>
+        /* General Styling */
+        :root {
+            --bg-color: #ffe6f0;
+            --primary-color: #ff69b4;
+            --secondary-color: #ff1493;
+            --text-color: #333;
+            --heart-color: #ff4d4d;
+            --glow-color: rgba(255, 105, 180, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Login Page Styling */
+        #login-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            z-index: 10;
+        }
+
+        #login-page.hidden {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+
+        #login-page h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        #password-input {
+            padding: 12px 15px;
+            /* border: 2px solid var(--primary-color); */
+            border-radius: 30px;
+            background: #fff;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #111;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #password-input:focus {
+            box-shadow: 0 0 15px var(--glow-color);
+            transform: scale(1.05);
+        }
+
+        #login-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #login-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--glow-color);
+        }
+
+        #error-message {
+            color: red;
+            font-weight: bold;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #error-message.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Proposal Page Styling */
+        #proposal-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in;
+            z-index: 5;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 1.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #proposal-page.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Sections with fade-in animations */
+        .proposal-section {
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            margin-bottom: 30px;
+        }
+
+        #intro-section { animation-delay: 1s; }
+        #paragraph-section { animation-delay: 3s; }
+        #main-proposal-section { animation-delay: 9s; }
+    #answer-section { animation-delay: 3s; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        #intro-section h1 {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: #ff69b4;
+        }
+
+        /* Typewriter effect for the paragraph */
+        #proposal-paragraph {
+            display: block;
+            color: #000;
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.45);
+            border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(255,105,180,0.10);
+            /* border: 2px solid var(--primary-color); */
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.03em;
+            text-shadow: 0 2px 8px rgba(255,105,180,0.08);
+        }
+
+    /* Removed typewriter and caret animation */
+
+        #main-proposal-section h2 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: var(--secondary-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); text-shadow: 0 0 10px var(--glow-color); }
+            50% { transform: scale(1.05); text-shadow: 0 0 25px var(--glow-color); }
+            100% { transform: scale(1); text-shadow: 0 0 10px var(--glow-color); }
+        }
+
+        /* Answer Buttons */
+        #answer-section {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .answer-button {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 1;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.1); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .answer-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px var(--glow-color);
+        }
+
+        /* Floating Hearts Animation */
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--heart-color);
+            transform: rotate(-45deg);
+            animation: float 10s infinite;
+            opacity: 0.7;
+            z-index: 1;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--heart-color);
+            border-radius: 50%;
+        }
+
+        .heart::before { top: -10px; left: 0; }
+        .heart::after { top: 0; left: 10px; }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(-45deg); opacity: 0.7; }
+            50% { transform: translateY(-150px) rotate(-45deg) translateX(50px); opacity: 1; }
+            100% { transform: translateY(-300px) rotate(-45deg) translateX(-50px); opacity: 0; }
+        }
+
+        /* Confetti and Popup */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            opacity: 0;
+            animation: explode 2s ease-out forwards;
+        }
+
+        .confetti.heart-shape {
+            width: 15px;
+            height: 15px;
+            background-color: var(--heart-color);
+            transform: rotate(-45deg);
+        }
+        .confetti.heart-shape::before,
+        .confetti.heart-shape::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: var(--heart-color);
+            border-radius: 50%;
+        }
+        .confetti.heart-shape::before { top: -7.5px; left: 0; }
+        .confetti.heart-shape::after { top: 0; left: 7.5px; }
+
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        #popup-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            padding: 40px 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 0 50px var(--glow-color);
+            color: var(--secondary-color);
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            z-index: 101;
+            transition: transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        #popup-message.visible {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Page -->
+    <div id="login-page">
+        <h2>A special website for a special person 💖</h2>
+        <input type="password" id="password-input" placeholder="Enter your birth date">
+        <button id="login-button">Unlock</button>
+        <p id="error-message">That's not it, try again!</p>
+    </div>
+
+    <!-- Main Proposal Page -->
+    <div id="proposal-page">
+        <!-- Floating hearts will be generated here by JS -->
+        <div id="hearts-container"></div>
+    <!-- Background Music will be added dynamically after login -->
+
+        <!-- Proposal Sections -->
+        <div id="intro-section" class="proposal-section">
+            <h1>Hello Chintuuuu</h1>
+        </div>
+
+        <div id="paragraph-section" class="proposal-section">
+            <p id="proposal-paragraph">From the moment I met you, everything in my world changed. Your smile brightens my days, your laugh makes my heart dance, and every moment with you feels magical. Life is so much better with you in it… and I can’t imagine my future without you by my side. Through all the boring and sad days, we’ll walk together, hand in hand — and I promise I will always try to be a better partner for you, every single day so yeah I love you <333.</p>
+        </div>
+
+        <div id="main-proposal-section" class="proposal-section">
+            <h2>Will you be mine? 💖</h2>
+        </div>
+
+        <div id="answer-section" class="proposal-section">
+            <button class="answer-button" id="yes-button">Yes</button>
+            <button class="answer-button" id="absolutely-yes-button">Absolutely Yes</button>
+        </div>
+    </div>
+    
+    <!-- Confetti Container -->
+    <div id="confetti-container"></div>
+
+    <!-- Final Popup Message -->
+    <div id="popup-message">
+        Yayyyy! You’re mine now❤️
+    </div>
+
+
+    <script>
+        // Romantic places image URLs
+        const romanticPlaces = [
+            // Santorini, Greece
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=90',
+            // Venice, Italy
+            'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1920&q=90',
+            // Paris, France
+            'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1920&q=90',
+            // Bali, Indonesia
+            'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1920&q=90',
+            // Prague, Czech Republic
+            'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1920&q=90',
+            // Maldives
+            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=90',
+            // Add more romantic nature images
+            // Banff National Park, Canada
+            'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1920&q=90',
+            // Lake Louise, Canada
+            'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=90',
+            // Hallstatt, Austria
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=90',
+            // Plitvice Lakes, Croatia
+            'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=1920&q=90',
+            // Swiss Alps, Switzerland
+            'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1920&q=90',
+        ];
+
+        function startBackgroundSlideshow() {
+            const proposalPage = document.getElementById('proposal-page');
+            let idx = 0;
+            proposalPage.style.backgroundImage = `url('${romanticPlaces[idx]}')`;
+            proposalPage.style.opacity = 1;
+            setInterval(() => {
+                proposalPage.style.opacity = 1;
+                setTimeout(() => {
+                    idx = (idx + 1) % romanticPlaces.length;
+                    proposalPage.style.backgroundImage = `url('${romanticPlaces[idx]}')`;
+                    proposalPage.style.opacity = 1;
+                }, 700);
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const loginPage = document.getElementById('login-page');
+            const proposalPage = document.getElementById('proposal-page');
+            const loginButton = document.getElementById('login-button');
+            const passwordInput = document.getElementById('password-input');
+            const errorMessage = document.getElementById('error-message');
+            let backgroundMusic;
+            const heartsContainer = document.getElementById('hearts-container');
+            const yesButton = document.getElementById('yes-button');
+            const absolutelyYesButton = document.getElementById('absolutely-yes-button');
+            const confettiContainer = document.getElementById('confetti-container');
+            const popupMessage = document.getElementById('popup-message');
+
+            const CORRECT_PASSWORD = '19102004';
+
+            // --- Event Listeners ---
+
+            // Handle login button click
+            loginButton.addEventListener('click', () => {
+                if (passwordInput.value === CORRECT_PASSWORD) {
+                    // Fade out login and fade in proposal
+                    loginPage.classList.add('hidden');
+                    setTimeout(() => {
+                        loginPage.style.display = 'none';
+                        proposalPage.classList.add('visible');
+                        startBackgroundSlideshow();
+                        // Dynamically add and play music only after login
+                        backgroundMusic = document.createElement('audio');
+                        backgroundMusic.id = 'background-music';
+                        backgroundMusic.src = 'Can-T-Help-Falling-In-Love.mp3';
+                        backgroundMusic.loop = true;
+                        backgroundMusic.autoplay = true;
+                        proposalPage.appendChild(backgroundMusic);
+                        backgroundMusic.play().catch(error => console.log("Autoplay was prevented:", error));
+                        createFloatingHearts();
+                    }, 500); // Match CSS transition duration
+                } else {
+                    // Show error message
+                    errorMessage.classList.add('visible');
+                    passwordInput.style.borderColor = 'red';
+                    setTimeout(() => {
+                        errorMessage.classList.remove('visible');
+                        passwordInput.style.borderColor = 'var(--primary-color)';
+                    }, 2000);
+                }
+            });
+            
+            // Allow pressing Enter to log in
+            passwordInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    loginButton.click();
+                }
+            });
+
+            // Handle "Yes" button clicks
+            const handleYesClick = () => {
+                // Trigger confetti and show popup
+                triggerConfettiExplosion();
+                popupMessage.classList.add('visible');
+                // Remove all other text except popup, keep background sound and images
+                const proposalSections = document.querySelectorAll('.proposal-section');
+                proposalSections.forEach(section => section.style.display = 'none');
+                // Remove login page if still present
+                if (loginPage) loginPage.style.display = 'none';
+            };
+
+            yesButton.addEventListener('click', handleYesClick);
+            absolutelyYesButton.addEventListener('click', handleYesClick);
+
+            // --- Functions ---
+
+            // Function to create floating hearts
+            function createFloatingHearts() {
+                const heartCount = 20;
+                for (let i = 0; i < heartCount; i++) {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    heart.style.left = `${Math.random() * 100}vw`;
+                    heart.style.animationDuration = `${Math.random() * 5 + 5}s`; // 5-10 seconds
+                    heart.style.animationDelay = `${Math.random() * 5}s`;
+                    heartsContainer.appendChild(heart);
+                }
+            }
+            
+            // Function to trigger confetti explosion
+            function triggerConfettiExplosion() {
+                const confettiCount = 100;
+                const colors = ['#ff69b4', '#ff1493', '#ffc0cb', '#ffffff'];
+
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    
+                    // 20% chance to be a heart shape
+                    if (Math.random() > 0.8) {
+                        confetti.classList.add('confetti', 'heart-shape');
+                    } else {
+                        confetti.classList.add('confetti');
+                        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    }
+
+                    const x = `${Math.random() * 200 - 100}vw`;
+                    const y = `${Math.random() * 200 - 100}vh`;
+                    confetti.style.setProperty('--x', x);
+                    confetti.style.setProperty('--y', y);
+                    
+                    confetti.style.left = '50%';
+                    confetti.style.top = '50%';
+
+                    confettiContainer.appendChild(confetti);
+
+                    // Remove confetti from DOM after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 2000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
